@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Devices registered<br></h1><br>
+</div>      
+     <a class="btn btn-success" href="/adduser">Add Device</a>
+ 
+     <hr>
+     
+     <table class="table table-striped">
+         <tr>
+             <th>IP</th>
+             <th>Display Name</th>
+             <th>Last Update</th>
+             <th></th>
+             <th></th>
+         </tr>
+         {% for data in results %}
+          <tr>
+             <th>{{data.IPaddr}}</th>
+             <th>{{data.DisplayName}}</th>
+             <th>{{data.LeaseTime}}</th>
+             <th><a href="edituser/{{data.UID}}" class="btn btn-info">Edit</a></th>
+             <th><a href="deleteuser/{{data.UID}}" class="btn btn-danger">Delete</a></th>
+          </tr>
+         {% endfor %}
+                  
+     </table>
+     
+{% endblock %}
+ 

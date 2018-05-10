@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Delete device<br></h1><br>
+      </div>
+     
+     {% from "includes/_formhelpers.html" import render_field %}
+     <form method="POST" action="">
+         <div class="form-group">
+             {{render_field(form.hostname, class="form-control")}}
+         </div>
+         <div class="form-group">
+             {{render_field(form.ipaddr, class="form-control")}}
+         </div>
+
+         <p><input type="submit" class="btn btn-danger" value ="Confirm"></p>
+     </form>
+{% endblock %}
