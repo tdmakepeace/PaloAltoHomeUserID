@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Force Update of Firewall<br></h1><br>
+          
+      </div>
+      
+     <a class="btn btn-info" onclick="window.history.back()">Back</a> 
+     <br>
+
+     
+     <br>
+          <table class="table table-striped">
+         <tr>
+             <th>IP</th>
+             <th>Display Name</th>
+         </tr>
+         {% for data in results %}
+          <tr>
+             <th>{{data.ip}}</th>
+             <th>{{data.name}}</th>
+          </tr>
+      
+         {% endfor %}
+     <p></p>             
+     </table>
+     <form method="POST" action="">
+          <div class="form-group">
+             {{render_field(form.checkbox, class="form-control")}}
+         </div>
+     <!--             <label>Confirm</label> <input type="checkbox" name="check" value="edit" />-->
+         <p><input type="submit" class="btn btn-danger" value ="Commit"></p>
+     </form>
+
+     
+{% endblock %}

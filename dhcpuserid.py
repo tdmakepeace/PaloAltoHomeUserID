@@ -9,6 +9,7 @@ import sys
 import ssl
 import xml.etree.ElementTree as ET
 import pymysql
+import time
 from datetime import datetime
 
 
@@ -151,7 +152,48 @@ def collectdhcp():
         cur = conn.cursor()
         cur.execute(state)
         cur.close()
-        conn.commit() 
+#        conn.commit() 
+
+    state2 = ("SELECT MacAddr FROM Python.DHCP where `source`= 'FW' and Vendor is null;")
+
+    cur2 = conn.cursor()
+    cur2.execute(state2)
+    results2 = cur2.fetchall()
+
+    for row in results2: 
+        mac = row[0]
+#            print (mac)
+
+        myssl = ssl.create_default_context();
+        myssl.check_hostname=False
+        myssl.verify_mode=ssl.CERT_NONE
+        url = "https://api.macvendors.com/%s" %(mac)
+        req = urllib.request.Request(url, data=None )
+        try :
+            resp_str = urllib.request.urlopen(req ,context=myssl)
+            result3 = resp_str.read().decode('utf-8')
+            result3 = result3.replace('\uff0c', '')
+
+            print(mac ,' = ' , result3 )            
+        except urllib.error.HTTPError as error:
+            print(error.code)
+            result3 = 'Unknown'
+#            print(mac ,' = ' , result3 )
+        cur3 = conn.cursor()
+        state3 = ("UPDATE DHCP set vendor = \"%s\" where MacAddr = \"%s\";") %(result3, mac)
+        cur3.execute(state3)
+        cur3.close()
+#        print(mac ,' + ' , result3 )
+        time.sleep(1)
+
+
+
+
+#            conn.commit() 
+
+        cur2.close()
+        conn.commit()         
+        
     conn.close()   
         
 
@@ -164,7 +206,7 @@ def CreateXMLFile():
     login = ET.SubElement(payload, "login")    
  
     conn = pymysql.connect(host=host, port=port, user=user, passwd=passwd, db=db)
-    state = ("Select IFNULL(DisplayName, Hostname), INET_NTOA(IPaddr) from DHCP where Hostname <> 'blank' or DisplayName is not null")
+    state = ("Select IFNULL(DisplayName, Hostname), INET_NTOA(IPaddr)  from DHCP where (Hostname <> 'blank' or DisplayName is not null) and LeaseTime in ( select MAX(LeaseTime)  from DHCP group by IPaddr desc) order by IPaddr;")
     cur = conn.cursor()
     cur.execute(state)
     results = cur.fetchall()
@@ -173,8 +215,36 @@ def CreateXMLFile():
         IP = row[1]
         ET.SubElement(login, "entry", name=Name , ip=IP )
         #    print(Name , IP)
+       
     cur.close()
+    groups = ET.SubElement(payload, "groups")  
+     
+    state1 = ("select GName from GROUPS;")
+    # "SELECT ifnull(DHCP.DisplayName,DHCP.Hostname) FROM DHCP where UID in (select Group_User_Map.DHCP_UID from Group_User_Map where Group_User_Map.Group_UID = (select UID from `Group` where `Group`.`Group`= 'admin'))")
+    cur1 = conn.cursor()
+    cur1.execute(state1)
+    results1 = cur1.fetchall()
+    for row in results1: 
+        Group = row[0]
+   #     print (Group)
+        group = ET.SubElement(groups, "entry", name=Group )
+        state2 = ("SELECT distinct(ifnull(DHCP.DisplayName,DHCP.Hostname)) FROM DHCP where UID in (select Group_User_Map.DHCP_UID from Group_User_Map where Group_User_Map.Group_UID = (select UID from GROUPS where GName= '%s'))") %(Group)
+        cur2 = conn.cursor()
+        cur2.execute(state2)
+        results2 = cur2.fetchall()
+        members = ET.SubElement(group , "members") 
+        for row in results2: 
+            Member = row[0]
+  #          print (Member)
+            ET.SubElement(members, "entry", name=Member )
+        
+        #    print(Name , IP)
+    
+    cur2.close()
+    cur1.close()
+
     conn.close() 
+    
     
     tree = ET.ElementTree(root)
     tree.write("userID.xml")
@@ -202,23 +272,24 @@ def SendAPI():
     
     
     
-def test():   
+def userguide():   
     
-
-    print (" The options available are help,setup")
+    print (" The following is the user guide for the tool")
+    print (" --------------------------------------------")
+    print (" see readme.md")
+    
+    
 
 if __name__ == '__main__':
     
     for arg in sys.argv: 1
 # use the command line to call the function from a single script.
     if arg == "help":
-        help()
+        userguide()
     elif arg == "setup":
         Createvariables()
     elif arg == "dbsetup":
         dbsetup()
-    elif arg == "help":
-        print (" The options available are help,setup")
     elif arg == "dhcp":
         collectdhcp()
     elif arg == "xml":
@@ -229,6 +300,7 @@ if __name__ == '__main__':
         collectdhcp()
         CreateXMLFile()
         SendAPI()
-        
     else:
-        help()
+        collectdhcp()
+#        CreateXMLFile()
+#        SendAPI()

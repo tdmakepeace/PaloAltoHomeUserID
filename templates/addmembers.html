@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Devices registered in Group<br></h1><br>
+</div>     
+<!--<a class="btn btn-info" onclick="window.history.back()">Back</a>-->
+     <a href="/group" class="btn btn-info">Groups</a>
+  
+     <hr>
+     
+     <table class="table table-striped">
+         <tr>
+             <th>Hostname</th>
+             <th>Current IP</th>
+             <th></th>
+             <th></th>
+         </tr>
+         {% for data in results %}
+          <tr>
+             <th>{{data.name}}</th>
+             <th>{{data.ip}}</th>
+             <th><a href="/addmember/?GUID={{data.GUID}}&DHCPUID={{data.UID}}" class="btn btn-success">Add</a></th>
+          </tr>
+         {% endfor %}
+                  
+     </table>
+     
+{% endblock %}
+ 

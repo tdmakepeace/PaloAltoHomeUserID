@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Devices registered<br></h1><br>
+</div>      
+     <a class="btn btn-success" href="/addgroup">Add group</a>
+ 
+     <hr>
+     
+     <table class="table table-striped">
+         <tr>
+             <th>Group Name</th>
+             <th>Description</th>
+             <th></th>
+             <th></th>
+         </tr>
+         {% for data in results %}
+          <tr>
+             <th>{{data.GName}}</th>
+             <th>{{data.Desc}}</th>
+             <th><a href="members/{{data.UID}}" class="btn btn-info">Members</a></th>
+             <th><a href="addmembers/{{data.UID}}" class="btn btn-info">Add Members</a></th>
+             <th><a href="editgroup/{{data.UID}}" class="btn btn-info">Edit</a></th>
+             <th><a href="deletegroup/{{data.UID}}" class="btn btn-danger">Delete</a></th>
+          </tr>
+         {% endfor %}
+                  
+     </table>
+     
+{% endblock %}
+ 

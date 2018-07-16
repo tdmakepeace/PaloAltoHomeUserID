@@ -4,14 +4,15 @@
 <div class='jumbotron text-center'>
       <h1>Delete device<br></h1><br>
       </div>
-     <a class="btn btn-info" onclick="window.history.back()">Back</a>     
+     <a class="btn btn-success" onclick="window.history.back()">Back</a>
+     
      {% from "includes/_formhelpers.html" import render_field %}
      <form method="POST" action="">
          <div class="form-group">
              {{render_field(form.hostname, class="form-control")}}
          </div>
          <div class="form-group">
-             {{render_field(form.displayname, class="form-control")}}
+             {{render_field(form.ipaddr, class="form-control")}}
          </div>
 
          <p><input type="submit" class="btn btn-danger" value ="Confirm"></p>
