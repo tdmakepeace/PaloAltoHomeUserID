@@ -7,3 +7,4 @@ Supports Static-IP address assignements, as well as group memberships.<br>
 Will dynamically update the firewall with the user-id objects, and the Group memberships.<br>
 Also does a MAC address vendor ID retrieval.<br>
 
+See WiKi for assistance.
