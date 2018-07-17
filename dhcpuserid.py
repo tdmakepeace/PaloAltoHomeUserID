@@ -83,7 +83,7 @@ def dbsetup():
     state = """ CREATE TABLE `DHCP` (
   `UID` int(11) NOT NULL AUTO_INCREMENT,
   `MacAddr` varchar(20) NOT NULL,
-  `Vendor` varchar(50) NOT NULL,
+  `Vendor` varchar(50) DEFAULT NULL,
   `IPaddr` decimal(11,0) DEFAULT NULL,
   `Hostname` varchar(50) DEFAULT NULL,
   `DisplayName` varchar(50) DEFAULT NULL,
@@ -91,27 +91,34 @@ def dbsetup():
   `Source` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`UID`),
   UNIQUE KEY `MacAddr_UNIQUE` (`MacAddr`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
-
-CREATE TABLE `GROUPS` (
-  `UID` int(11) NOT NULL AUTO_INCREMENT,
-  `GName` varchar(50) DEFAULT NULL,
-  `Desc` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`UID`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=latin1;
-
-CREATE TABLE `Group_User_Map` (
-  `UID` int(11) NOT NULL AUTO_INCREMENT,
-  `DHCP_UID` int(11) DEFAULT NULL,
-  `Group_UID` int(11) DEFAULT NULL,
-  PRIMARY KEY (`UID`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=latin1;
-
-"""
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;"""
     
     cur = conn.cursor()
     cur.execute(state)
     cur.close()
+    
+    state1 = """ CREATE TABLE `GROUPS` (
+  `UID` int(11) NOT NULL AUTO_INCREMENT,
+  `GName` varchar(50) DEFAULT NULL,
+  `Desc` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`UID`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1; """
+    
+    cur1 = conn.cursor()
+    cur1.execute(state1)
+    cur1.close()
+    
+    state2 = """CREATE TABLE `Group_User_Map` (
+  `UID` int(11) NOT NULL AUTO_INCREMENT,
+  `DHCP_UID` int(11) DEFAULT NULL,
+  `Group_UID` int(11) DEFAULT NULL,
+  PRIMARY KEY (`UID`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;"""
+    
+    cur2 = conn.cursor()
+    cur2.execute(state2)
+    cur2.close()
+        
     conn.commit() 
     conn.close()  
 
