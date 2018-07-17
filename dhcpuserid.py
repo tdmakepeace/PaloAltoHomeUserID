@@ -50,7 +50,7 @@ def Createvariables():
     dbHost = input("Enter the IP or host name of the Mysql Server: ")
     dbHost = "host = '%s' \n" %(dbHost)
     dbPort = input("Enter the port number for the Mysql Server: ")
-    dbPort = "port = '%s' \n" %(dbPort)
+    dbPort = "port = %s \n" %(dbPort)
     dbUser = input("Enter the admin user for the Mysql Server: ")
     dbUser = "user = '%s' \n" %(dbUser)
     dbPass = input("Enter the admin password for the Mysql Server: ")
