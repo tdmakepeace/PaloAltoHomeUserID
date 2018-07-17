@@ -95,7 +95,7 @@ def force():
 @app.route("/userid")
 def userid():
     cur = mysql.connection.cursor()
-    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP ,`Hostname`,`DisplayName`,`LeaseTime`,`Source`FROM `Python`.`DHCP` where Source = 'form' order by IPaddr asc;" )
+    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP ,`Hostname`,`DisplayName`,`LeaseTime`,`Source`FROM `DHCP` where Source = 'form' order by IPaddr asc;" )
     results = cur.fetchall()
     
     if result > 0:
@@ -129,7 +129,7 @@ def group():
 @app.route("/dhcpid")
 def dhcpid():
     cur = mysql.connection.cursor()
-    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName`,`LeaseTime`,`Source`FROM `Python`.`DHCP` where Source = 'FW' order by IPaddr asc;" )
+    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName`,`LeaseTime`,`Source`FROM `DHCP` where Source = 'FW' order by IPaddr asc;" )
     results = cur.fetchall()
     
     if result > 0:
@@ -257,7 +257,7 @@ def addmember():
 @app.route("/edituser/<string:id>/", methods=['GET','POST'])
 def edituser(id):
     cur = mysql.connection.cursor()
-    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `Python`.`DHCP` where  UID = %s;" , [id] )
+    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `DHCP` where  UID = %s;" , [id] )
     results = cur.fetchone()
     
     form = EditForm(request.form)
@@ -290,7 +290,7 @@ def edituser(id):
 @app.route("/deleteuser/<string:id>/", methods=['GET','POST'])
 def deleteuser(id):
     cur = mysql.connection.cursor()
-    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `Python`.`DHCP` where  UID = %s;" , [id] )
+    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `DHCP` where  UID = %s;" , [id] )
     results = cur.fetchone()
 
   
@@ -359,7 +359,7 @@ def deletemember(id):
 @app.route("/editdhcp/<string:id>/", methods=['GET','POST'])
 def editdhcp(id):
     cur = mysql.connection.cursor()
-    result = cur.execute(" SELECT `UID`, `MacAddr`, Vendor,  inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `Python`.`DHCP` where  UID = %s;" , [id] )
+    result = cur.execute(" SELECT `UID`, `MacAddr`, Vendor,  inet_ntoa(`IPaddr`) as IP,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `DHCP` where  UID = %s;" , [id] )
     results = cur.fetchone()
     
     form = EditDhcp(request.form)
@@ -392,7 +392,7 @@ def editdhcp(id):
 @app.route("/deletedhcp/<string:id>/", methods=['GET','POST'])
 def deletedhcp(id):
     cur = mysql.connection.cursor()
-    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IPaddr,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `Python`.`DHCP` where  UID = %s;" , [id] )
+    result = cur.execute(" SELECT `UID`, `MacAddr`, inet_ntoa(`IPaddr`) as IPaddr,`Hostname`,`DisplayName` ,`LeaseTime`,`Source`FROM `DHCP` where  UID = %s;" , [id] )
     results = cur.fetchone()
 
   
