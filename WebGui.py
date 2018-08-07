@@ -40,10 +40,29 @@ def register():
     return render_template('register.html')
 
 
+@app.route("/system")
+def system():
+    cur = mysql.connection.cursor()
+    state = ("SELECT * FROM FWdata ;")
+    result = cur.execute(state)
+    results = cur.fetchall()
+    
+    if result > 0:
+        return render_template('system.html', results=results)
+    else:
+        msg = 'No devices registered'
+        return render_template('system.html', msg=msg)
+
+
+    cur.close()
+        
+    return render_template('system.html')
+
+
 @app.route("/fwlist")
 def fwlist():
     cur = mysql.connection.cursor()
-    state = ("Select IFNULL(DisplayName, Hostname) as name, INET_NTOA(IPaddr) as ip  from DHCP where (Hostname <> 'blank' or DisplayName is not null) and LeaseTime in ( select MAX(LeaseTime)  from DHCP group by IPaddr desc) order by IPaddr;")
+    state = ("Select IFNULL(DisplayName, Hostname) as name, INET_NTOA(IPaddr) as ip  from DHCP where (Hostname <> 'blank' or DisplayName is not null) and LeaseTime in ( select MAX(LeaseTime)  from DHCP group by IPaddr desc)  and ( LeaseTime = '1970-01-01 00:00:01'  or LeaseTime > (NOW() - INTERVAL 1 WEEK)) order by IPaddr;")
     result = cur.execute(state)
     results = cur.fetchall()
     
