@@ -198,7 +198,7 @@ def dbsetup():
 # TODO: need a temp record, as a update is used by the collect process
 # ideally will look at changing it to something cleaner, as did not want to
 # add a load of indexes to the table.
-    state4 = """INSERT INTO `FWdata` (`hostname`) VALUES ('temp');"""
+    state4 = """INSERT IGNORE  INTO `FWdata` (`uid`, `hostname`) VALUES (1, 'temp');"""
     
     cur4 = conn.cursor()
     cur4.execute(state4)
