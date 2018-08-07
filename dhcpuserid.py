@@ -569,6 +569,5 @@ if __name__ == '__main__':
         createxmlfile()
         sendapi()
     else:
-        collectdhcp()
-        CreateXMLFile()
-        sendapi()
+        userguide()
+       
