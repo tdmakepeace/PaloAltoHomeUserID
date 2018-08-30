@@ -78,16 +78,36 @@ def createvariables():
 # requests the user to input the details on the Mysql server to connect to.
 # if you need to edit, it is easier to edit the variables.py rather than run the
 # the whole script again
+# Just hitting enter will result in the example value being used
     dbHost = input("Enter the IP or host name of the Mysql Server: Default 'localhost'")
-    dbHost = "host = '%s' \n" %(dbHost)
+    if dbHost:
+        dbHost = "host = '%s' \n" %(dbHost)
+    else:
+        dbHost = "host = 'localhost' \n"
+
     dbPort = input("Enter the port number for the Mysql Server: Default '3306'")
-    dbPort = "port = %s \n" %(dbPort)
+    if dbPort:
+        dbPort = "port = '%s' \n" %(dbPort)
+    else:
+        dbPort = "port = '3306' \n"
+
     dbUser = input("Enter the admin user for the Mysql Server: Default 'PANuser'")
-    dbUser = "user = '%s' \n" %(dbUser)
-    dbPass = input("Enter the admin password for the Mysql Server: Default 'Password'")
-    dbPass = "passwd = '%s' \n" %(dbPass)
+    if dbUser:
+        dbUser = "user = '%s' \n" %(dbUser)
+    else:
+        dbUser = "user = 'PANuser' \n"
+
+    dbPass = input("Enter the admin password for the Mysql Server: Default 'password'")
+    if dbPass:
+        dbPass = "passwd = '%s' \n" %(dbPass)
+    else:
+        dbPass = "passwd = 'password' \n"
+
     dbDb = input("Enter the name of the database: Default 'PaloAltoHomeUserID'")
-    dbDb = "db = '%s' \n" %(dbDb)
+    if dbDb:
+        dbDb = "db = '%s' \n" %(dbDb)
+    else:
+        dbDb = "db = 'PaloAltoHomeUserID' \n"
     
 # the name entered must be an exact match for the interdace name on the firewall
 # or the word "all" in lower case.
