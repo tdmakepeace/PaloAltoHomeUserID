@@ -322,6 +322,8 @@ def collectdhcp():
 # changes for a device.
         state = ("insert into DHCP (IPaddr, MacAddr, Hostname, Leasetime , Source) values (INET_ATON('%s'),'%s','%s','%s' , 'FW' ) ON DUPLICATE KEY UPDATE IPaddr=INET_ATON('%s'), Hostname='%s' , Leasetime='%s' ;") %(ip, mac,  hostname, leasetime, ip,  hostname, leasetime)
 
+        print('Inserted {} {} -> {}'.format(IPAddr, Hostname, Leasetime))
+
         cur = conn.cursor()
         cur.execute(state)
         cur.close()
