@@ -110,6 +110,7 @@ project/.panrc
 .panrc
 userID.xml
 variables.py
+*.bak
 
 # Logfiles
 log/*
