@@ -87,9 +87,9 @@ def createvariables():
 
     dbPort = input("Enter the port number for the Mysql Server: Default '3306'")
     if dbPort:
-        dbPort = "port = '%s' \n" %(dbPort)
+        dbPort = "port = %s \n" %(dbPort)
     else:
-        dbPort = "port = '3306' \n"
+        dbPort = "port = 3306 \n"
 
     dbUser = input("Enter the admin user for the Mysql Server: Default 'PANuser'")
     if dbUser:
@@ -320,13 +320,20 @@ def collectdhcp():
 # the insert statement for the data, the update on duplicate key is used 
 # to make sure we maintain the MAC address link relationship when the IP address
 # changes for a device.
-        state = ("insert into DHCP (IPaddr, MacAddr, Hostname, Leasetime , Source) values (INET_ATON('%s'),'%s','%s','%s' , 'FW' ) ON DUPLICATE KEY UPDATE IPaddr=INET_ATON('%s'), Hostname='%s' , Leasetime='%s' ;") %(ip, mac,  hostname, leasetime, ip,  hostname, leasetime)
-
-        print('Inserted {} {} -> {}'.format(IPAddr, Hostname, Leasetime))
-
+# the check has been added to deal wiht the same mac address on mulit VLAN
+# and the XML not being orderable.
+        state = ("Select 'Y' from DHCP where MacAddr = '%s' and Leasetime >  '%s'  ; ") %(mac,  leasetime)
         cur = conn.cursor()
-        cur.execute(state)
+        check = cur.execute(state)
+        if check > 0:
+            state1 = ("insert into DHCP (IPaddr, MacAddr, Hostname, Leasetime , Source) values (INET_ATON('%s'),'%s','%s','%s' , 'FW' ) ON DUPLICATE KEY UPDATE IPaddr=INET_ATON('%s'), Hostname='%s' , Leasetime='%s' ;") %(ip, mac,  hostname, leasetime, ip,  hostname, leasetime)
+            cur1 = conn.cursor()
+            cur1.execute(state1)
+            cur1.close()
+        else:
+                state1 = ("")
         cur.close()
+
 
 # to be able to add the mac-vendor, we retrieve all records from the database 
 # that do not have a vendor linked to them, and have been populated from the 
@@ -517,11 +524,10 @@ def createxmlfile():
         for row in results2: 
             Member = row[0]
             ET.SubElement(members, "entry", name=Member )
-        
+		  		  cur2.close()
     
-    cur2.close()
+    
     cur1.close()
-
     conn.close() 
     
     
