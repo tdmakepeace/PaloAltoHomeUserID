@@ -20,7 +20,8 @@ from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, IntegerField,PasswordField, BooleanField,  validators 
 from wtforms.validators import DataRequired
 
-app = Flask(__name__)
+
+
 
 try:
     from variables import *
@@ -31,7 +32,7 @@ except ImportError:
     sys.exit(0)
 
 
-
+app = Flask(__name__)
 # config mysql #
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SECRET_KEY'] = 'PaloAltoNetworksUserIDRegister'
@@ -43,6 +44,7 @@ app.config['MYSQL_DB'] = db
 app.config['MYSQL_PORT'] = port
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init mysql #
+
 
         
         
@@ -320,7 +322,7 @@ def createxmlfile():
         Name = row[0]
         IP = row[1]
         ET.SubElement(login, "entry", name=Name , ip=IP )
-        #    print(Name , IP)
+#        print(Name , IP)
        
     cur.close()
     groups = ET.SubElement(payload, "groups")  
@@ -396,6 +398,7 @@ def initBackgroundProcs():
     thread2 = threading.Thread(target=dbmain)
     thread1.start()
     thread2.start()
+
     
 
 mysql =MySQL(app)
@@ -453,38 +456,26 @@ def fwlist():
     return render_template('fwlist.html')
 
 
-@app.route("/force", methods=['GET','POST'])
+@app.route("/force")
 def force():
+    createxmlfile()
+    sendapi()
+
     cur = mysql.connection.cursor()
-    state = ("Select IFNULL(DisplayName, Hostname) as name, INET_NTOA(IPaddr) as ip  from DHCP where (Hostname <> 'blank' or DisplayName is not null) and LeaseTime in ( select MAX(LeaseTime)  from DHCP group by IPaddr desc) order by IPaddr;")
+    state = ("SELECT IFNULL(DisplayName, Hostname) AS name, INET_NTOA(IPaddr) AS ip FROM DHCP WHERE (Hostname <> 'blank' OR DisplayName IS NOT NULL)         AND LeaseTime IN (SELECT            MAX(LeaseTime)        FROM            DHCP        GROUP BY IPaddr DESC) AND ( LeaseTime > (NOW() - INTERVAL %s WEEK) and Source = 'fw')  or Source = 'form' or LeaseTime = '1970-01-01 00:00:01' ORDER BY IPaddr;")  %(LeaseLife)
     result = cur.execute(state)
     results = cur.fetchall()
-  
+    
     if result > 0:
-        return render_template('force.html', results=results)
+        return render_template('fwlist.html', results=results)
     else:
         msg = 'No devices registered'
-        return render_template('force.html', msg=msg)
+        return render_template('fwlist.html', msg=msg)
 
 
     cur.close()
-    
-    check = request.form.get('check')
-    print (check)
-    
-    form = Force(request.form)
-    if request.method == 'POST' and form.validate():
         
-    
-    #and request.form.getlist('check') == "true":
-        check = request.form.get('check')
-        print (check)
-        flash ('Firewall Update Requested', 'success')
-        return redirect(url_for('fwlist'))
-    else :
-        print (check)
-        
-    return render_template('force.html')
+    return render_template('fwlist.html')
 
 @app.route("/userid")
 def userid():
@@ -956,5 +947,6 @@ class Force(Form):
 if __name__ == '__main__':
     initBackgroundProcs()
     app.secret_key='PaloAltoNetworksUserIDRegister'
-    app.run(debug=True)
+    app.run(debug=False , host=webhost , port=webport)
+
     

@@ -67,10 +67,28 @@ def createvariables():
     header = "## The master variable file \n# file can be edited directly after initial cretion \n#\n\n"
     key = "# The API key to be used to connect to the firewall. \n# key = 'LUFRPT1vSVMwajJUczYyd0d4NlM1MmU0a0hrckZhSEU9c1RNcGt5eG1tVklKQlRsMHJ2Z1gydz09' \nkey = '%s' \n\n" %(apikey)
     base = "# the Base url the script connects to. it is the https://<fw ip address/api/ \n#base ='https://192.168.102.200/api/' \nbase ='https://%s/api/'\n\n" %(Host)
-    
-# requests the user to input the details on the Mysql server to connect to.
+
+
+# requests the user to input the details on the Flask server 
 # if you need to edit, it is easier to edit the variables.py rather than run the
 # the whole script again
+
+    webhost = input("Enter the IP or host name you want the web service to run on: Default 'localhost'")
+    if webhost:
+        webhost = "webhost = '%s' \n" %(webhost)
+    else:
+        webhost = "webhost = 'localhost' \n"        
+    webhost = "# the host the webservice is hosted on, FQDN or IP is required.\n#webhost = '192.168.102.6' \n%s \n" %(webhost)
+
+    webport = input("Enter the IP or host name you want the web service to run on: Default 'localhost'")
+    if webport:
+        webport = "webport = '%s' \n" %(webport)
+    else:
+        webport = "webport = '5000' \n"        
+    webport = "# the port the webservice is hosted on, default flask is 5000..\n#webport = '5000'  \n%s \n" %(webport)
+
+    
+# requests the user to input the details on the Mysql server to connect to.
     dbHost = input("Enter the IP or host name of the Mysql Server: Default 'localhost'")
     if dbHost:
         dbHost = "host = '%s' \n" %(dbHost)

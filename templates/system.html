@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Firewall System Status<br></h1><br>
+      
+</div>      
+     <hr>
+     
+     <table class="table table-striped">
+         {% for data in results %}
+          <tr>
+              <th>HostName</th><th>{{data.hostname}}</th><th></th>
+          </tr><tr>   
+               <th>Model</th> <th>{{data.model}}</th><th></th>
+          </tr><tr> 
+              <th>Serial Number</th><th>{{data.serial}}</th><th></th>
+          </tr><tr> 
+              <th>Software Version</th> <th>{{data.swversion}}</th><th></th>
+          </tr><tr>   
+              <th>System Uptime</th><th>{{data.uptime}}</th> <th></th>
+          </tr><tr> 
+              <th>Application DB </th><th>{{data.appversion}}</th> <th>{{data.appdate}}</th>
+          </tr><tr> 
+              <th>Anti Virus DB </th><th>{{data.avversion}}</th> <th>{{data.avdate}}</th>
+          </tr><tr> 
+              <th>Threat DB </th><th>{{data.threatversion}}</th> <th>{{data.threatdate}}</th>
+          </tr><tr> 
+              <th>wildfire DB </th><th>{{data.wildfireversion}}</th> <th>{{data.wildfiredate}}</th>
+              
+              
+          </tr>
+         {% endfor %}
+                  
+     </table>
+     
+{% endblock %}
+ 
