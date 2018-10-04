@@ -65,8 +65,8 @@ def createvariables():
 ## variable file creation
 
     header = "## The master variable file \n# file can be edited directly after initial cretion \n#\n\n"
-    key = "# The API key to be used to connect to the firewall. \n# key = 'LUFRPT1vSVMwajJUczYyd0d4NlM1MmU0a0hrckZhSEU9c1RNcGt5eG1tVklKQlRsMHJ2Z1gydz09' \nkey = '%s' \n\n" %(apikey)
-    base = "# the Base url the script connects to. it is the https://<fw ip address/api/ \n#base ='https://192.168.102.200/api/' \nbase ='https://%s/api/'\n\n" %(Host)
+    key = "# The API key to be used to connect to the firewall. \n# key = 'LUFRPT10VGJKTEV6a0R4L1JXd0ZmbmNvdUEwa25wMlU9d0N5d292d2FXNXBBeEFBUW5pV2xoZz09' \nkey = '%s' \n\n" %(apikey)
+    base = "# the Base url the script connects to. it is the https://<fw ip address/api/ \n#base ='https://192.168.55.10/api/' \nbase ='https://%s/api/'\n\n" %(Host)
 
 
 # requests the user to input the details on the Flask server 
@@ -78,9 +78,9 @@ def createvariables():
         webhost = "webhost = '%s' \n" %(webhost)
     else:
         webhost = "webhost = 'localhost' \n"        
-    webhost = "# the host the webservice is hosted on, FQDN or IP is required.\n#webhost = '192.168.102.6' \n%s \n" %(webhost)
+    webhost = "# the host the webservice is hosted on, FQDN or IP is required.\n#webhost = 'localhost' \n%s \n" %(webhost)
 
-    webport = input("Enter the IP or host name you want the web service to run on: Default 'localhost'")
+    webport = input("Enter the port you want the web service to run on: Default '5000'")
     if webport:
         webport = "webport = '%s' \n" %(webport)
     else:
@@ -186,6 +186,8 @@ def createvariables():
     f.write(header)
     f.write(key)
     f.write(base)
+    f.write(webhost)
+    f.write(webport)
     f.write(dbHost)
     f.write(dbPort)
     f.write(dbUser)
@@ -263,38 +265,38 @@ def dbsetup():
     cur2.execute(state2)
     cur2.close()
 
-# this table is used to record the state information.
-# uptime and DB updated from content updated.
-    state3 = """CREATE TABLE IF NOT EXISTS `FWdata` (
-  `UID` int(11) NOT NULL AUTO_INCREMENT,
-  `hostname` varchar(40) NOT NULL,
-  `uptime` varchar(20) DEFAULT NULL,
-  `model` varchar(50) DEFAULT NULL,
-  `serial` varchar(50) DEFAULT NULL,
-  `swversion` varchar(50) DEFAULT NULL,
-  `appversion` varchar(50) DEFAULT NULL,
-  `avversion` varchar(50) DEFAULT NULL,
-  `threatversion` varchar(50) DEFAULT NULL,
-  `wildfireversion` varchar(50) DEFAULT NULL,
-  `appdate` varchar(50) DEFAULT NULL,
-  `avdate` varchar(50) DEFAULT NULL,
-  `threatdate` varchar(50) DEFAULT NULL,
-  `wildfiredate` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`UID`)
- ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;"""
-    
-    cur3 = conn.cursor()
-    cur3.execute(state3)
-    cur3.close()
-
-# TODO: need a temp record, as a update is used by the collect process
-# ideally will look at changing it to something cleaner, as did not want to
-# add a load of indexes to the table.
-    state4 = """INSERT IGNORE  INTO `FWdata` (`uid`, `hostname`) VALUES (1, 'temp');"""
-    
-    cur4 = conn.cursor()
-    cur4.execute(state4)
-    cur4.close()
+## this table is used to record the state information.
+## uptime and DB updated from content updated.
+#    state3 = """CREATE TABLE IF NOT EXISTS `FWdata` (
+#  `UID` int(11) NOT NULL AUTO_INCREMENT,
+#  `hostname` varchar(40) NOT NULL,
+#  `uptime` varchar(20) DEFAULT NULL,
+#  `model` varchar(50) DEFAULT NULL,
+#  `serial` varchar(50) DEFAULT NULL,
+#  `swversion` varchar(50) DEFAULT NULL,
+#  `appversion` varchar(50) DEFAULT NULL,
+#  `avversion` varchar(50) DEFAULT NULL,
+#  `threatversion` varchar(50) DEFAULT NULL,
+#  `wildfireversion` varchar(50) DEFAULT NULL,
+#  `appdate` varchar(50) DEFAULT NULL,
+#  `avdate` varchar(50) DEFAULT NULL,
+#  `threatdate` varchar(50) DEFAULT NULL,
+#  `wildfiredate` varchar(50) DEFAULT NULL,
+#  PRIMARY KEY (`UID`)
+# ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;"""
+#    
+#    cur3 = conn.cursor()
+#    cur3.execute(state3)
+#    cur3.close()
+#
+## TODO: need a temp record, as a update is used by the collect process
+## ideally will look at changing it to something cleaner, as did not want to
+## add a load of indexes to the table.
+#    state4 = """INSERT IGNORE  INTO `FWdata` (`uid`, `hostname`) VALUES (1, 'temp');"""
+#    
+#    cur4 = conn.cursor()
+#    cur4.execute(state4)
+#    cur4.close()
     
         
     conn.commit() 

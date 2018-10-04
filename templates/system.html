@@ -8,30 +8,27 @@
      <hr>
      
      <table class="table table-striped">
-         {% for data in results %}
           <tr>
-              <th>HostName</th><th>{{data.hostname}}</th><th></th>
+              <th>HostName</th><th>{{hostname}}</th><th></th>
           </tr><tr>   
-               <th>Model</th> <th>{{data.model}}</th><th></th>
+               <th>Model</th> <th>{{model}}</th><th></th>
           </tr><tr> 
-              <th>Serial Number</th><th>{{data.serial}}</th><th></th>
+              <th>Serial Number</th><th>{{serial}}</th><th></th>
           </tr><tr> 
-              <th>Software Version</th> <th>{{data.swversion}}</th><th></th>
+              <th>Software Version</th> <th>{{swversion}}</th><th><a href="/upgrade" class="btn btn-success">Upgrade</a></th>
           </tr><tr>   
-              <th>System Uptime</th><th>{{data.uptime}}</th> <th></th>
+              <th>System Uptime</th><th>{{uptime}}</th> <th></th>
           </tr><tr> 
-              <th>Application DB </th><th>{{data.appversion}}</th> <th>{{data.appdate}}</th>
+              <th>Application DB </th><th>{{appversion}}</th> <th>{{appdate}}</th>
           </tr><tr> 
-              <th>Anti Virus DB </th><th>{{data.avversion}}</th> <th>{{data.avdate}}</th>
+              <th>Anti Virus DB </th><th>{{avversion}}</th> <th>{{avdate}}</th>
           </tr><tr> 
-              <th>Threat DB </th><th>{{data.threatversion}}</th> <th>{{data.threatdate}}</th>
+              <th>Threat DB </th><th>{{threatversion}}</th> <th>{{threatdate}}</th>
           </tr><tr> 
-              <th>wildfire DB </th><th>{{data.wildfireversion}}</th> <th>{{data.wildfiredate}}</th>
+              <th>wildfire DB </th><th>{{wildfireversion}}</th> <th>{{wildfiredate}}</th>
+
               
-              
-          </tr>
-         {% endfor %}
-                  
+          </tr>                
      </table>
      
 {% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Firewall Upgrade Status<br></h1><br>
+      
+</div>      
+     <hr>
+     
+     <table class="table table-striped">
+          <tr>
+              <th>Installing</th> <th>{{status}}</th><th></th>
+          
+     </table>
+ 
+  <meta http-equiv="refresh" content="5; URL=/upgradeinstall/?version={{version}}&job={{job}}">
+  
+      
+{% endblock %}
+ 
+ 

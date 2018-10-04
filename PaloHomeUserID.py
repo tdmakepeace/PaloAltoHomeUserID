@@ -220,50 +220,50 @@ def collectdhcp():
 # database, you can temporay comment out the commit. (not recommended)
         conn.commit()         
         
-  
-# the folllowing section just retrieves the latest status information of the 
-# firewall, the Model, SN, and the software revisions. 
-# writing this to the DB, but could easily be to a temp file if needed. 
-
-    typeop = "op"
-    cmd = "<show><system><info></info></system></show>" 
-    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
-    req = urllib.request.Request(cmd1, data=None )
-    resp_str = urllib.request.urlopen(req ,context=myssl)
-    result4 = resp_str.read()
-#    print (result4)
-    tree = ET.fromstring(result4)
-    for child in tree.iter('system'):
-        hostname = child.find('hostname').text
-        uptime =  child.find('uptime').text
-        model =  child.find('model').text
-        serial =  child.find('serial').text
-        swversion =  child.find('sw-version').text
-        appversion =  child.find('app-version').text
-        avversion =  child.find('av-version').text
-        appversion =  child.find('app-version').text
-        threatversion =  child.find('threat-version').text
-        wildfireversion =  child.find('wildfire-version').text
-        appdate =  child.find('app-release-date').text
-        avdate =  child.find('av-release-date').text
-        threatdate =  child.find('threat-release-date').text
-        wildfiredate =  child.find('wildfire-release-date').text
-
-
-# writes the data to the FWdata table as a update, so we only maintain a single
-# record, would be easy to add a history, but changing this to a insert. 
-# if we changed this to a insert, so as to maintain history, we would add a 
-# foreign key on the combination of the  (swversion,appversion,avversion,
-# appversion,wildfireversion)
-
-#  TODO: add insert statement as a example and the SQL to add Foreign Key.
-
-        state4 = ("UPDATE FWdata SET `hostname` = \"%s\",  `uptime` = \"%s\", `model` = \"%s\", `serial` = \"%s\", `swversion` = \"%s\", `appversion` = \"%s\", `avversion` =\"%s\", `threatversion` = \"%s\", `wildfireversion` = \"%s\", `appdate` = \"%s\",    `avdate` = \"%s\",    `threatdate` = \"%s\",    `wildfiredate` = \"%s\"   ORDER BY UID DESC LIMIT 1;" ) %(hostname,  uptime, model, serial, swversion,  appversion, avversion, threatversion, wildfireversion, appdate, avdate ,threatdate, wildfiredate)
-
-        cur4 = conn.cursor()
-        cur4.execute(state4)
-        cur4.close()
-        conn.commit()  
+#  
+## the folllowing section just retrieves the latest status information of the 
+## firewall, the Model, SN, and the software revisions. 
+## writing this to the DB, but could easily be to a temp file if needed. 
+#
+#    typeop = "op"
+#    cmd = "<show><system><info></info></system></show>" 
+#    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+#    req = urllib.request.Request(cmd1, data=None )
+#    resp_str = urllib.request.urlopen(req ,context=myssl)
+#    result4 = resp_str.read()
+##    print (result4)
+#    tree = ET.fromstring(result4)
+#    for child in tree.iter('system'):
+#        hostname = child.find('hostname').text
+#        uptime =  child.find('uptime').text
+#        model =  child.find('model').text
+#        serial =  child.find('serial').text
+#        swversion =  child.find('sw-version').text
+#        appversion =  child.find('app-version').text
+#        avversion =  child.find('av-version').text
+#        appversion =  child.find('app-version').text
+#        threatversion =  child.find('threat-version').text
+#        wildfireversion =  child.find('wildfire-version').text
+#        appdate =  child.find('app-release-date').text
+#        avdate =  child.find('av-release-date').text
+#        threatdate =  child.find('threat-release-date').text
+#        wildfiredate =  child.find('wildfire-release-date').text
+#
+#
+## writes the data to the FWdata table as a update, so we only maintain a single
+## record, would be easy to add a history, but changing this to a insert. 
+## if we changed this to a insert, so as to maintain history, we would add a 
+## foreign key on the combination of the  (swversion,appversion,avversion,
+## appversion,wildfireversion)
+#
+##  TODO: add insert statement as a example and the SQL to add Foreign Key.
+#
+#        state4 = ("UPDATE FWdata SET `hostname` = \"%s\",  `uptime` = \"%s\", `model` = \"%s\", `serial` = \"%s\", `swversion` = \"%s\", `appversion` = \"%s\", `avversion` =\"%s\", `threatversion` = \"%s\", `wildfireversion` = \"%s\", `appdate` = \"%s\",    `avdate` = \"%s\",    `threatdate` = \"%s\",    `wildfiredate` = \"%s\"   ORDER BY UID DESC LIMIT 1;" ) %(hostname,  uptime, model, serial, swversion,  appversion, avversion, threatversion, wildfireversion, appdate, avdate ,threatdate, wildfiredate)
+#
+#        cur4 = conn.cursor()
+#        cur4.execute(state4)
+#        cur4.close()
+#        conn.commit()  
         
     conn.close() 
     
@@ -416,25 +416,231 @@ def index():
 @app.route("/register")
 def register():
     return render_template('register.html')
+        
+        
+@app.route("/upgrade")
+def upgrade():
+    myssl = ssl.create_default_context();
+    myssl.check_hostname=False
+    myssl.verify_mode=ssl.CERT_NONE
 
+    typeop = "op"
+    cmd = "<show><system><info></info></system></show>" 
+    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+    req = urllib.request.Request(cmd1, data=None )
+    resp_str = urllib.request.urlopen(req ,context=myssl)
+    result4 = resp_str.read()
+#    print (result4)
+    tree = ET.fromstring(result4)
+    for child in tree.iter('system'):
+        swversion =  child.find('sw-version').text
+
+    
+    cmd = "<request><system><software><check></check></software></system></request>"
+    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+    req = urllib.request.Request(cmd1, data=None )
+    resp_str = urllib.request.urlopen(req ,context=myssl)
+    result5 = resp_str.read()
+#    print (result5)
+    tree = ET.fromstring(result5)
+    for child in tree.iter('result'):
+        latestversion = child.find('./sw-updates/versions/entry/version').text
+    
+    return render_template('upgrade.html',  swversion=swversion, latestversion=latestversion )
+        
+@app.route("/upgradestart/")
+def upgradestart():
+	  version = (request.args.get('version', None))
+	  job = int(request.args.get('job', None))
+#	  complete = int(request.args.get('complete', None))
+
+	  if job == 0:
+	    myssl = ssl.create_default_context();
+	    myssl.check_hostname=False
+	    myssl.verify_mode=ssl.CERT_NONE	
+		
+	    typeop = "op"
+	    cmd = "<request><system><software><download><version>" + version + "</version></download></software></system></request>"
+	    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+	    req = urllib.request.Request(cmd1, data=None )
+	    resp_str = urllib.request.urlopen(req ,context=myssl)
+	    response = resp_str.read()
+	    print (response)
+	    if response:
+	    	tree = ET.fromstring(response)
+	    	job = tree.find('./result/job').text
+	    	print ("Downloading version " + version + " in job " + job)	
+	    	flash ('Downloading version', 'success')
+	    	return redirect(url_for('upgradestart' ,  version=(version), job =(job) ))
+
+	  complete = 0
+	  if job is not None:
+	    while complete != 1:
+	    	myssl = ssl.create_default_context();
+	    	myssl.check_hostname=False
+	    	myssl.verify_mode=ssl.CERT_NONE
+	    	typeop = "op"
+	    	job = str(job)
+	    	cmd = "<show><jobs><id>" + job + "</id></jobs></show>"
+	    	cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+	    	req = urllib.request.Request(cmd1, data=None )
+	    	resp_str = urllib.request.urlopen(req ,context=myssl)
+	    	response = resp_str.read()
+	    	if response:
+   				tree = ET.fromstring(response)
+   				if tree.find('./result/job/status').text == "ACT":
+   					status = tree.find('./result/job/progress').text + "% complete"
+   					print ('{0}\r'.format(status)),
+   					return render_template('upgradedownload.html',  status=status ,version = version , job = job)
+
+   				elif tree.find('./result/job/status').text == "FIN":
+   					complete = 1
+   					job = 0
+
+	    return redirect(url_for('upgradeinstall' ,  version=(version), job =(job) ))
+
+
+@app.route("/upgradeinstall/")
+def upgradeinstall():
+	  version = (request.args.get('version', None))
+	  job = int(request.args.get('job', None))
+#	  complete = int(request.args.get('complete', None))
+
+	  if job == 0:
+	    myssl = ssl.create_default_context();
+	    myssl.check_hostname=False
+	    myssl.verify_mode=ssl.CERT_NONE	
+		
+	    typeop = "op"
+	    cmd = "<request><system><software><install><version>" + version + "</version></install></software></system></request>"
+	    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+	    req = urllib.request.Request(cmd1, data=None )
+	    resp_str = urllib.request.urlopen(req ,context=myssl)
+	    response = resp_str.read()
+	    print (response)
+	    if response:
+	    	tree = ET.fromstring(response)
+	    	job = tree.find('./result/job').text
+	    	print ("Downloading version " + version + " in job " + job)	
+	    	flash ('Installing version', 'success')
+	    	return redirect(url_for('upgradeinstall' ,  version=(version), job =(job) ))
+
+	  complete = 0
+	  if job is not None:
+	    while complete != 1:
+	    	myssl = ssl.create_default_context();
+	    	myssl.check_hostname=False
+	    	myssl.verify_mode=ssl.CERT_NONE
+	    	typeop = "op"
+	    	job = str(job)
+	    	cmd = "<show><jobs><id>" + job + "</id></jobs></show>"
+	    	cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+	    	req = urllib.request.Request(cmd1, data=None )
+	    	resp_str = urllib.request.urlopen(req ,context=myssl)
+	    	response = resp_str.read()
+	    	if response:
+   				tree = ET.fromstring(response)
+   				if tree.find('./result/job/status').text == "ACT":
+   					status = tree.find('./result/job/progress').text + "% complete"
+   					print ('{0}\r'.format(status)),
+   					return render_template('upgradeinstall.html',  status=status ,version = version , job = job)
+
+   				elif tree.find('./result/job/status').text == "FIN":
+   					complete = 1
+   					job = 0
+
+	    return redirect(url_for('upgradeconfirm', reboot=0))
+		      
+@app.route("/upgradeconfirm/")
+def upgradeconfirm():
+	  reboot = int(request.args.get('reboot', None))
+	  myssl = ssl.create_default_context();
+	  myssl.check_hostname=False
+	  myssl.verify_mode=ssl.CERT_NONE
+	    
+	  if reboot == 0:
+	  	return render_template('upgradeconfirm.html')
+	  else:
+
+	    typeop = "op"
+	    cmd = "<request><restart><system></system></restart></request>"
+	    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+	    req = urllib.request.Request(cmd1, data=None )
+	    resp_str = urllib.request.urlopen(req ,context=myssl)
+	    response = resp_str.read()
+	    if response:
+	    	tree = ET.fromstring(response)
+	    	if tree.get('status') == "success":
+	    		print ("Rebooting the firewall")
+	    		flash ('Rebooting the firewall', 'success')
+	    		return redirect(url_for('system'))
+
+	  return redirect(url_for('system'))
+
+@app.route("/reboot/")
+def reboot():
+	  reboot = int(request.args.get('reboot', None))
+	  myssl = ssl.create_default_context();
+	  myssl.check_hostname=False
+	  myssl.verify_mode=ssl.CERT_NONE
+	    
+	  if reboot == 0:
+	  	return render_template('reboot.html')
+	  else:
+
+	    typeop = "op"
+	    cmd = "<request><restart><system></system></restart></request>"
+	    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+	    req = urllib.request.Request(cmd1, data=None )
+	    resp_str = urllib.request.urlopen(req ,context=myssl)
+	    response = resp_str.read()
+	    if response:
+	    	tree = ET.fromstring(response)
+	    	if tree.get('status') == "success":
+	    		print ("Rebooting the firewall")
+	    		flash ('Rebooting the firewall', 'success')
+	    		return redirect(url_for('system'))
+
+	  return redirect(url_for('system'))
+	  
 
 @app.route("/system")
 def system():
-    cur = mysql.connection.cursor()
-    state = ("SELECT * FROM FWdata ;")
-    result = cur.execute(state)
-    results = cur.fetchall()
+    myssl = ssl.create_default_context();
+    myssl.check_hostname=False
+    myssl.verify_mode=ssl.CERT_NONE
+
+    typeop = "op"
+    cmd = "<show><system><info></info></system></show>" 
+    cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
+    req = urllib.request.Request(cmd1, data=None )
+    resp_str = urllib.request.urlopen(req ,context=myssl)
+    result4 = resp_str.read()
+#    print (result4)
+    tree = ET.fromstring(result4)
+    for child in tree.iter('system'):
+        hostname = child.find('hostname').text
+        uptime =  child.find('uptime').text
+        model =  child.find('model').text
+        serial =  child.find('serial').text
+        swversion =  child.find('sw-version').text
+        appversion =  child.find('app-version').text
+        avversion =  child.find('av-version').text
+        appversion =  child.find('app-version').text
+        threatversion =  child.find('threat-version').text
+        wildfireversion =  child.find('wildfire-version').text
+        appdate =  child.find('app-release-date').text
+        avdate =  child.find('av-release-date').text
+        threatdate =  child.find('threat-release-date').text
+        wildfiredate =  child.find('wildfire-release-date').text
     
-    if result > 0:
-        return render_template('system.html', results=results)
-    else:
-        msg = 'No devices registered'
-        return render_template('system.html', msg=msg)
 
-
-    cur.close()
-        
-    return render_template('system.html')
+    return render_template('system.html',  hostname=hostname , uptime=uptime, model=model, serial=serial,
+            swversion=swversion, appversion=appversion, avversion=avversion,
+            threatversion =  threatversion,  wildfireversion =  wildfireversion, appdate =  appdate, avdate =  avdate,
+            threatdate =  threatdate, wildfiredate=wildfiredate)
+            
+	
 
 
 @app.route("/fwlist")
@@ -947,6 +1153,6 @@ class Force(Form):
 if __name__ == '__main__':
     initBackgroundProcs()
     app.secret_key='PaloAltoNetworksUserIDRegister'
-    app.run(debug=False , host=webhost , port=webport)
+    app.run(debug=True , host=webhost , port=webport)
 
     

@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Firewall Upgrade Status<br>
+      	Reboot required</h1><br>
+      
+</div>      
+     <hr>
+     
+     <table class="table table-striped">
+          <tr>
+               <p><a href="/upgradeconfirm/?reboot=1" class="btn btn-danger">Confirm</a></p>   
+          </tr>               
+     </table>
+     
+{% endblock %}
+ 

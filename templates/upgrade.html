@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Firewall System Upgrade<br></h1><br>
+      This option will download the latest update and install it.
+</div>      
+     <hr>
+     
+     <table class="table table-striped">
+          <tr>
+              <th>Software Version</th> <th>{{swversion}}</th><th></th>
+          </tr><tr> 
+              <th>Latest Version</th> <th>{{latestversion}}</th><th></th>    
+ 
+          </tr> 
+          <p><a href="/upgradestart/?version={{latestversion}}&job=0" class="btn btn-info">Confirm</a></p>               
+     </table>
+     
+{% endblock %}
+ 
