@@ -144,7 +144,8 @@ def collectdhcp():
 # changes for a device.
 # the check has been added to deal wiht the same mac address on mulit VLAN
 # and the XML not being orderable.
-        state = ("Select 'Y' from DHCP where MacAddr = '%s' and Leasetime >  '%s'  ; ") %(mac,  leasetime)
+        state = ("Select 'Y' from Dual where 'Y' = (Select  'Y'  from DHCP where (MacAddr = '%s' and Leasetime <  '%s' )) or 'Y' = (select 'Y' from dual where '%s' not in (select MacAddr  from DHCP)); ") %(mac,  leasetime, mac)
+
         cur = conn.cursor()
         check = cur.execute(state)
         if check > 0:
@@ -153,8 +154,10 @@ def collectdhcp():
             cur1.execute(state1)
             cur1.close()
         else:
-                state1 = ("")
-        cur.close()        
+            state1 = ("")
+
+        cur.close()     
+        conn.commit()    
 
 # to be able to add the mac-vendor, we retrieve all records from the database 
 # that do not have a vendor linked to them, and have been populated from the 
@@ -206,6 +209,7 @@ def collectdhcp():
         state3 = ("UPDATE DHCP set vendor = \"%s\" where MacAddr = \"%s\";") %(result3, mac)
         cur3.execute(state3)
         cur3.close()
+        conn.commit()    
 # due to a limitation, on the macvendor api, we are only allowed to query the DB
 # once a second, hence the sleep statement.
 # also limited to 5000 queries a day. 
