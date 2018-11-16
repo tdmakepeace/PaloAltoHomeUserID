@@ -393,11 +393,11 @@ def collectdhcp():
 # or do some local cache structure. I can not see this being needed.
         time.sleep(1)
 
-        cur2.close()
+    cur2.close()
 # import, all the statements run above is this section are no commited until the
 # following line, if you want to do a lot of testing without updateing the 
 # database, you can temporay comment out the commit. (not recommended)
-        conn.commit()         
+    conn.commit()
         
   
 # the folllowing section just retrieves the latest status information of the 
@@ -524,7 +524,7 @@ def createxmlfile():
         for row in results2: 
             Member = row[0]
             ET.SubElement(members, "entry", name=Member )
-			  cur2.close()
+        cur2.close()
     
     
     cur1.close()
