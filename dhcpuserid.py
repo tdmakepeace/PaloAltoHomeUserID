@@ -322,7 +322,7 @@ def collectdhcp():
 # changes for a device.
 # the check has been added to deal wiht the same mac address on mulit VLAN
 # and the XML not being orderable.
-        state = ("Select 'Y' from DHCP where MacAddr = '%s' and Leasetime >  '%s'  ; ") %(mac,  leasetime)
+        state = ("Select 'Y' from Dual where 'Y' = (Select  'Y'  from DHCP where (MacAddr = '%s' and Leasetime <  '%s' )) or 'Y' = (select 'Y' from dual where '%s' not in (select MacAddr  from DHCP)); ") %(mac,  leasetime, mac)
         cur = conn.cursor()
         check = cur.execute(state)
         if check > 0:
@@ -524,7 +524,7 @@ def createxmlfile():
         for row in results2: 
             Member = row[0]
             ET.SubElement(members, "entry", name=Member )
-		  		  cur2.close()
+			  cur2.close()
     
     
     cur1.close()
