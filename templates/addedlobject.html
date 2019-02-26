@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+      
+<div class='jumbotron text-center'>
+      <h1>Add EDL Object<br></h1><br>
+
+      </div>
+      
+          <a class="btn btn-info" onclick="window.history.back()">Back</a>
+     {% from "includes/_formhelpers.html" import render_field %}
+     <form method="POST" action="">
+         <div class="form-group">
+             {{render_field(form.edlobj, class="form-control")}}
+         </div>
+         <p><input type="submit" class="btn btn-primary" value ="Submit"></p>
+     </form>
+     
+     
+<div class='jumbotron text-left'>
+      <p><h4>IP List</h4> 
+      Each list can include IP ranges and IP subnets in the IPv4 and IPv6 address space.
+     The list must contain only one IP address, range, or subnet per line. Example:
+<br>&emsp;  192.168.80.150/32 
+<br>&emsp;  2001:db8:123:1::1 or 2001:db8:123:1::/64 
+<br>&emsp;  192.168.80.0/24 (this indicates all addresses from 192.168.80.0 through 192.168.80.255) 
+<br>&emsp;  2001:db8:123:1::1 - 2001:db8:123:1::22 
+<br>A subnet or an IP address range, such as 92.168.20.0/24 or 192.168.20.40-192.168.20.50, count as one IP address entry and not as multiple IP addresses.
+</p>
+
+<p> <h4>Domain List</h4> 
+Each list can have only one domain name entry per line. Example:
+<br>&emsp;  www.p301srv03.paloalonetworks.com 
+<br>&emsp;  ftp.example.co.uk 
+<br>&emsp;  test.domain.net 
+For the list of domains included in the External Dynamic List, the firewall creates a set of custom signatures of type spyware and medium severity, so that you can use the sinkhole action for a custom list of domains.
+</p>
+
+<p> <h4>URL List</h4> 
+Each list can have only one URL entry per line. Example:
+<br>&emsp;  financialtimes.co.in 
+<br>&emsp;  www.wallaby.au/joey 
+<br>&emsp;  www.exyang.com/auto-tutorials/How-to-enter-Data-for-Success.aspx 
+<br>&emsp;  *.example.com/* 
+</p>
+
+
+      </div>
+      
+
+{% endblock %}
+

@@ -13,14 +13,16 @@ import sys
 import ssl
 import xml.etree.ElementTree as ET
 import pymysql
-#import getpass
 from datetime import datetime
 from flask import Flask, render_template , flash, redirect, url_for, session, request , logging
+from flask import send_file
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, IntegerField,PasswordField, BooleanField,  validators 
-from wtforms.validators import DataRequired
-
-
+# from wtforms.validators import InputRequired
+#from flask_bootstrap import Bootstrap
+#from flask_wtf import FlaskForm 
+#from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+#from werkzeug.security import generate_password_hash, check_password_hash
 
 
 try:
@@ -43,12 +45,12 @@ app.config['MYSQL_PASSWORD'] = passwd
 app.config['MYSQL_DB'] = db
 app.config['MYSQL_PORT'] = port
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+mysql =MySQL(app)
 # init mysql #
 
 
-        
-        
-
+    
+#####---------------------------------------------
 def dbmain():
 # TODO:    A new section to act as a DB maintainence.
 # still to be worked on.
@@ -383,12 +385,27 @@ def sendapi():
     cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,xml)
 
     req = urllib.request.Request(cmd1, data=None )
-    resp_str = urllib.request.urlopen(req ,context=myssl)
-    result = resp_str.read()
+    now = datetime.now()
+    logdate = (now.year, now.month, now.day, now.hour, now.minute, now.second)
+    try:
+        resp_str = urllib.request.urlopen(req ,context=myssl)
+    except urllib.error.URLError as e:
+        f = open("errorlog.txt", "a")
+        f.write(str(logdate))
+        f.write(' sendapi ')
+        f.write(e.reason + '\n')
+    else:
+        f = open("succeslog.txt", "a")
+        f.write(str(logdate))
+        result = resp_str.read()
+        f.write(str(result) + '\n')
+
+
+#    resp_str = urllib.request.urlopen(req ,context=myssl)
+#    result = resp_str.read()
 
 ## DEBUG: uncomment so as to be able    
 ##    print (result)
-
 
 def dbuser():
     while True:
@@ -396,6 +413,7 @@ def dbuser():
         createxmlfile()
         sendapi()
         time.sleep(dbUserDelay)
+        
         
 def initBackgroundProcs():
     thread1 = threading.Thread(target=dbuser)
@@ -405,7 +423,7 @@ def initBackgroundProcs():
 
     
 
-mysql =MySQL(app)
+
 
 
 ###
@@ -416,6 +434,48 @@ mysql =MySQL(app)
 @app.route("/")
 def index():
     return render_template('index.html')
+    
+#@app.route('/download/<filename>', methods=['GET', 'POST'])
+#def download(filename):
+#    fileedl = "edldownloads/%s" %(filename)
+#    return send_file(fileedl,  as_attachment=True)
+    
+
+@app.route('/download/<filename>', methods=['GET', 'POST'])
+def download(filename):
+    fileedl = "%s" %(filename)
+    nameedl = fileedl[:-4]
+    folderedl = "edldownloads/%s" %(fileedl)
+
+    conn = pymysql.connect(host=host, port=port, user=user, passwd=passwd, db=db)
+    cur = conn.cursor()
+
+#collect all the IP EDLS
+    state = ("select `UID` from EDL where `EDLName` = '%s';") %(nameedl)
+    try:
+        cur.execute(state)
+        results = cur.fetchall()
+        for row in results: 
+            ID = row[0]
+            f = open('edldownloads/%s.txt' %(nameedl), 'w') 
+#open file for writing
+            state1 = ("SELECT `EDL_Data` FROM `EDLData` where `EDL_UID` = %s ;") %(ID)
+            cur.execute(state1)
+            results1 = cur.fetchall()
+            for row in results1:
+                ip = row[0]
+                f.write(ip+ '\n')
+            f.close()
+#Return File 
+        return send_file(folderedl,  as_attachment=True)
+        
+    except :
+        f = open('edldownloads/%s.txt' %(nameedl), 'w')
+        f.write('\n')
+        f.close()
+#Return empty File 
+        return send_file(folderedl,  as_attachment=True)
+
 
 @app.route("/register")
 def register():
@@ -432,23 +492,35 @@ def upgrade():
     cmd = "<show><system><info></info></system></show>" 
     cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
     req = urllib.request.Request(cmd1, data=None )
-    resp_str = urllib.request.urlopen(req ,context=myssl)
-    result4 = resp_str.read()
+    try:
+        resp_str = urllib.request.urlopen(req ,context=myssl)
+    except urllib.error.URLError as e:
+        f = open("errorlog.txt", "a")
+        f.write(logdate)
+        f.write(e.reason + '\n')
+    else:
+        result4 = resp_str.read()
 #    print (result4)
-    tree = ET.fromstring(result4)
-    for child in tree.iter('system'):
-        swversion =  child.find('sw-version').text
+        tree = ET.fromstring(result4)
+        for child in tree.iter('system'):
+            swversion =  child.find('sw-version').text
 
     
     cmd = "<request><system><software><check></check></software></system></request>"
     cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
     req = urllib.request.Request(cmd1, data=None )
-    resp_str = urllib.request.urlopen(req ,context=myssl)
-    result5 = resp_str.read()
+    try:
+        resp_str = urllib.request.urlopen(req ,context=myssl)
+    except urllib.error.URLError as e:
+        f = open("errorlog.txt", "a")
+        f.write(logdate)
+        f.write(e.reason + '\n')
+    else:
+        result5 = resp_str.read()
 #    print (result5)
-    tree = ET.fromstring(result5)
-    for child in tree.iter('result'):
-        latestversion = child.find('./sw-updates/versions/entry/version').text
+        tree = ET.fromstring(result5)
+        for child in tree.iter('result'):
+            latestversion = child.find('./sw-updates/versions/entry/version').text
     
     return render_template('upgrade.html',  swversion=swversion, latestversion=latestversion )
         
@@ -618,25 +690,31 @@ def system():
     cmd = "<show><system><info></info></system></show>" 
     cmd1 = "%s?key=%s&type=%s&cmd=%s" %(base,key,typeop,cmd)
     req = urllib.request.Request(cmd1, data=None )
-    resp_str = urllib.request.urlopen(req ,context=myssl)
-    result4 = resp_str.read()
+    try:
+        resp_str = urllib.request.urlopen(req ,context=myssl)
+    except urllib.error.URLError as e:
+        f = open("errorlog.txt", "a")
+        f.write(logdate)
+        f.write(e.reason + '\n')
+    else:
+        result4 = resp_str.read()
 #    print (result4)
-    tree = ET.fromstring(result4)
-    for child in tree.iter('system'):
-        hostname = child.find('hostname').text
-        uptime =  child.find('uptime').text
-        model =  child.find('model').text
-        serial =  child.find('serial').text
-        swversion =  child.find('sw-version').text
-        appversion =  child.find('app-version').text
-        avversion =  child.find('av-version').text
-        appversion =  child.find('app-version').text
-        threatversion =  child.find('threat-version').text
-        wildfireversion =  child.find('wildfire-version').text
-        appdate =  child.find('app-release-date').text
-        avdate =  child.find('av-release-date').text
-        threatdate =  child.find('threat-release-date').text
-        wildfiredate =  child.find('wildfire-release-date').text
+        tree = ET.fromstring(result4)
+        for child in tree.iter('system'):
+            hostname = child.find('hostname').text
+            uptime =  child.find('uptime').text
+            model =  child.find('model').text
+            serial =  child.find('serial').text
+            swversion =  child.find('sw-version').text
+            appversion =  child.find('app-version').text
+            avversion =  child.find('av-version').text
+            appversion =  child.find('app-version').text
+            threatversion =  child.find('threat-version').text
+            wildfireversion =  child.find('wildfire-version').text
+            appdate =  child.find('app-release-date').text
+            avdate =  child.find('av-release-date').text
+            threatdate =  child.find('threat-release-date').text
+            wildfiredate =  child.find('wildfire-release-date').text
     
 
     return render_template('system.html',  hostname=hostname , uptime=uptime, model=model, serial=serial,
@@ -647,27 +725,45 @@ def system():
 	
 
 
-@app.route("/fwlist")
-def fwlist():
+@app.route("/fwhostlist")
+def fwhostlist():
     cur = mysql.connection.cursor()
     state = ("SELECT IFNULL(DisplayName, Hostname) AS name, INET_NTOA(IPaddr) AS ip FROM DHCP WHERE (Hostname <> 'blank' OR DisplayName IS NOT NULL)         AND LeaseTime IN (SELECT            MAX(LeaseTime)        FROM            DHCP        GROUP BY IPaddr DESC) AND ( LeaseTime > (NOW() - INTERVAL %s WEEK) and Source = 'fw')  or Source = 'form' or LeaseTime = '1970-01-01 00:00:01' ORDER BY IPaddr;")  %(LeaseLife)
     result = cur.execute(state)
     results = cur.fetchall()
     
     if result > 0:
-        return render_template('fwlist.html', results=results)
+        return render_template('fwhostlist.html', results=results)
     else:
         msg = 'No devices registered'
-        return render_template('fwlist.html', msg=msg)
+        return render_template('fwhostlist.html', msg=msg)
 
 
     cur.close()
         
-    return render_template('fwlist.html')
+    return render_template('fwhostlist.html')
+
+@app.route("/fwgrouplist")
+def fwgrouplist():
+    cur = mysql.connection.cursor()
+    state = ("SELECT DISTINCT GROUPS.GName as `group`, (ifnull(DHCP.DisplayName,DHCP.Hostname)) as `device` FROM GROUPS INNER JOIN Group_User_Map ON GROUPS.UID = Group_User_Map.Group_UID INNER JOIN DHCP ON Group_User_Map.DHCP_UID = DHCP.UID ORDER BY GROUPS.GName ASC;")
+    result = cur.execute(state)
+    results = cur.fetchall()
+    
+    if result > 0:
+        return render_template('fwgrouplist.html', results=results)
+    else:
+        msg = 'No devices registered'
+        return render_template('fwgrouplist.html', msg=msg)
 
 
-@app.route("/force")
-def force():
+    cur.close()
+        
+    return render_template('fwgrouplist.html')
+    
+
+@app.route("/forcehost")
+def forcehost():
     createxmlfile()
     sendapi()
 
@@ -677,15 +773,36 @@ def force():
     results = cur.fetchall()
     
     if result > 0:
-        return render_template('fwlist.html', results=results)
+        return render_template('fwhostlist.html', results=results)
     else:
         msg = 'No devices registered'
-        return render_template('fwlist.html', msg=msg)
+        return render_template('fwhostlist.html', msg=msg)
 
 
     cur.close()
         
-    return render_template('fwlist.html')
+    return render_template('fwhostlist.html')
+
+@app.route("/forcegroup")
+def forcegroup():
+    createxmlfile()
+    sendapi()
+
+    cur = mysql.connection.cursor()
+    state = ("SELECT DISTINCT GROUPS.GName as `group`, (ifnull(DHCP.DisplayName,DHCP.Hostname)) as `device` FROM GROUPS INNER JOIN Group_User_Map ON GROUPS.UID = Group_User_Map.Group_UID INNER JOIN DHCP ON Group_User_Map.DHCP_UID = DHCP.UID ORDER BY GROUPS.GName ASC;")
+    result = cur.execute(state)
+    results = cur.fetchall()
+    
+    if result > 0:
+        return render_template('fwgrouplist.html', results=results)
+    else:
+        msg = 'No devices registered'
+        return render_template('fwgrouplist.html', msg=msg)
+
+
+    cur.close()
+        
+    return render_template('fwgrouplist.html')
 
 @app.route("/userid")
 def userid():
@@ -721,6 +838,63 @@ def group():
         
     return render_template('group.html')
 
+
+@app.route("/edl")
+def edl():
+    cur = mysql.connection.cursor()
+    result = cur.execute("select `UID`, `EDLName`, `Desc` from EDL order by UID asc;" )
+    results = cur.fetchall()
+    
+    if result > 0:
+        return render_template('edl.html', results=results)
+    else:
+        msg = 'No EDL lists created'
+        return render_template('edl.html', msg=msg)
+
+
+    cur.close()
+        
+    return render_template('group.html')
+    
+@app.route("/edltest")
+def edltest():
+    cur = mysql.connection.cursor()
+    result = cur.execute("select `UID`, `EDLName`, `Desc` from EDL order by UID asc;" )
+    results = cur.fetchall()
+    
+    if result > 0:
+        return render_template('edltest.html', results=results)
+    else:
+        msg = 'No EDL lists created'
+        return render_template('edltest.html', msg=msg)
+
+
+    cur.close()
+        
+    return render_template('group.html')
+    
+
+@app.route("/addedl", methods=['GET', 'POST'])
+def addedl():
+    form = AddEDL(request.form)
+    if request.method == 'POST' and form.validate():
+        displayname = form.displayname.data
+        descript = form.descript.data
+        ## cursor ##
+        cur = mysql.connection.cursor()
+        cur.execute(" INSERT INTO EDL (EDLName, `Desc` )VALUES ( %s, %s) ", (displayname , descript ) )
+        
+        ## commit and close ##
+        mysql.connection.commit()
+        cur.close()
+        
+        flash ('EDL Added', 'success')
+        return redirect(url_for('edl'))
+        
+#        return render_template('adduser.html')
+    return render_template('addedl.html', form=form)
+    
+    
 @app.route("/dhcpid")
 def dhcpid():
     cur = mysql.connection.cursor()
@@ -760,6 +934,25 @@ def adduser():
 #        return render_template('adduser.html')
     return render_template('adduser.html', form=form)
 
+@app.route("/addedlobject/<string:id>/", methods=['GET','POST'])
+def addedlobject(id):
+    form = AddEDLobject(request.form)
+    if request.method == 'POST' and form.validate():
+        edlobj = form.edlobj.data
+        ## cursor ##
+        cur = mysql.connection.cursor()
+        cur.execute(" INSERT INTO `EDLData` (`EDL_UID`, `EDL_Data`) VALUES ( %s, %s) ;", (id , edlobj) )
+        ## commit and close ##
+        mysql.connection.commit()
+        cur.close()
+        
+        flash ('Device Added', 'success')
+        return redirect(url_for('edl'))
+        
+#        return render_template('adduser.html')
+    return render_template('addedlobject.html', form=form)
+    
+
 @app.route("/addgroup", methods=['GET', 'POST'])
 def addgroup():
     form = AddGroup(request.form)
@@ -796,6 +989,22 @@ def members(id):
         
     return render_template('members.html')
 
+@app.route("/edlobjects/<string:id>/", methods=['GET','POST'])
+def edlobjects(id):
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT UID , EDL_Data FROM EDLData WHERE EDL_UID = %s order by UID asc;" , [id] )
+    results = cur.fetchall()
+    
+    if result > 0:
+        return render_template('edlobjects.html', results=results)
+    else:
+        msg = 'No devices registered'
+        return render_template('edlobjects.html', msg=msg)
+
+    cur.close()
+        
+    return render_template('edlobjects.html')
+    
 @app.route("/addmembers/<string:id>/", methods=['GET','POST'])
 def addmembers(id):
     cur = mysql.connection.cursor()
@@ -811,6 +1020,7 @@ def addmembers(id):
     cur.close()
         
     return render_template('addmembers.html')
+
 
 @app.route("/addmember/", methods=['GET','POST'])
 def addmember():
@@ -914,6 +1124,37 @@ def deleteuser(id):
         
     
     return render_template('deleteuser.html', form=form )
+
+
+@app.route("/deleteedlobj/<string:id>/", methods=['GET','POST'])
+def deleteedlobj(id):
+    cur = mysql.connection.cursor()
+    result = cur.execute(" SELECT `EDL_Data` as edlobject FROM `EDLData` where  UID = %s;" , [id] )
+    results = cur.fetchone()
+
+  
+    form = DeleteEDLObj(request.form)
+    form.edlobject.data = results['edlobject']
+    
+    if request.method == 'POST' and form.validate():
+        edlobject = form.edlobject.data
+        ## cursor ##
+        cur = mysql.connection.cursor()
+        cur.execute(" Delete from `EDLData` where UID = %s and EDL_Data = %s "  , ( id , edlobject ))
+        ## commit and close ##
+        mysql.connection.commit()
+        cur.close()
+        
+        flash ('Object Deleted', 'success')
+        return redirect(url_for('edl'))
+
+
+    cur.close()
+        
+    
+    return render_template('deleteedlobj.html', form=form )
+    
+
 
 
  
@@ -1092,6 +1333,42 @@ def deletegroup(id):
     
     return render_template('deletegroup.html', form=form )
 
+@app.route("/deleteedl/<string:id>/", methods=['GET','POST'])
+def deleteedl(id):
+    cur = mysql.connection.cursor()
+    result = cur.execute("SELECT `UID`, EDLName,  `Desc` as descript FROM EDL  where  UID = %s;" , [id] )
+    results = cur.fetchone()
+
+  
+    form = DeleteEDL(request.form)
+    form.displayname.data = results['EDLName']
+    form.descript.data = results['descript']
+    form.uid.data = results['UID']
+    
+    if request.method == 'POST' and form.validate():
+        displayname = request.form['displayname']
+        uid = form.uid.data
+        ## cursor ##
+        cur = mysql.connection.cursor()
+        #print([id])
+        cur.execute("Delete from EDLData where EDL_UID = %s;" , [id] )
+        mysql.connection.commit()
+        cur.close()
+        cur = mysql.connection.cursor()
+        cur.execute(" Delete from EDL where UID = %s and EDLName = %s ;" , (uid , displayname))
+        ## commit and close ##
+        mysql.connection.commit()
+        cur.close()
+           
+           
+        flash ('EDL Deleted', 'success')
+        return redirect(url_for('edl'))
+
+
+    cur.close()
+        
+    
+    return render_template('deleteedl.html', form=form )
 
  
  
@@ -1104,7 +1381,12 @@ class AddForm(Form):
     hostname = StringField('Display Name', [validators.Length(min=1, max=50)])
     ipaddr = StringField('IP Address', [validators.IPAddress(ipv4=True , message="Enter a valid IP Address")])
 
+class AddEDLobject(Form):
+    edlobj = StringField('Object String', [validators.Length(min=1, max=50 , message="Enter required")])
     
+class DeleteEDLObj(Form):
+    edlobject = StringField('Object String', render_kw={'readonly': True})
+
 class EditForm(Form):
     uid = IntegerField('UID', render_kw={'readonly': True})
     hostname = StringField('Display Name', [validators.Length(min=1, max=50)])
@@ -1125,12 +1407,16 @@ class EditDhcp(Form):
     hostname = StringField('Host Name', render_kw={'readonly': True} )
     vendor = StringField('Mac Vendor', render_kw={'readonly': True} )
     displayname = StringField('Display Name')
- 
+    
 class DeleteDhcp(Form):
     uid = IntegerField('UID', render_kw={'readonly': True} )
     hostname = StringField('Host Name', render_kw={'readonly': True} )
     displayname = StringField('Display Name', render_kw={'readonly': True})   
-
+    
+class AddEDL(Form):
+    descript = StringField('Description')
+    displayname = StringField('EDL Name', [validators.Length(min=1, max=50)])
+    
 class AddGroup(Form):
     descript = StringField('Description')
     displayname = StringField('Group Name', [validators.Length(min=1, max=50)])
@@ -1139,12 +1425,18 @@ class EditGroup(Form):
     uid = IntegerField('UID', render_kw={'readonly': True})
     descript = StringField('Description')
     displayname = StringField('Group Name', render_kw={'readonly': True})
- 
+    
 class DeleteGroup(Form):
     uid = IntegerField('UID', render_kw={'readonly': True} )
     descript = StringField('Description', render_kw={'readonly': True} )
     displayname = StringField('Group Name', render_kw={'readonly': True})   
     
+    
+class DeleteEDL(Form):
+    uid = IntegerField('UID', render_kw={'readonly': True} )
+    descript = StringField('Description', render_kw={'readonly': True} )
+    displayname = StringField('EDL Name', render_kw={'readonly': True})   
+
 class addmemberForm(Form):
     displayname = StringField('Display Name', render_kw={'readonly': True})
     ip = StringField('IP Address', render_kw={'readonly': True})    
@@ -1152,7 +1444,7 @@ class addmemberForm(Form):
     GUID = IntegerField('GUID', render_kw={'readonly': True} )   
 
 class Force(Form):
-     checkbox = BooleanField('Agree?', validators=[DataRequired(), ])
+     checkbox = BooleanField('Agree?', validators=[validators.DataRequired(), ])
     
 if __name__ == '__main__':
     initBackgroundProcs()

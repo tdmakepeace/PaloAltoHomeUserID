@@ -115,3 +115,6 @@ variables.py
 log/*
 !log/.gitkeep
 
+# backups
+*.bak
+

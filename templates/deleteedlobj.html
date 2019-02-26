@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Delete EDL Object<br></h1><br>
+      </div>
+     <a class="btn btn-info" onclick="window.history.back()">Back</a>
+          
+     {% from "includes/_formhelpers.html" import render_field %}
+     <form method="POST" action="">
+         <div class="form-group">
+             {{render_field(form.edlobject, class="form-control")}}
+         </div>
+
+         <p><input type="submit" class="btn btn-danger" value ="Confirm"></p>
+     </form>
+     
+
+{% endblock %}

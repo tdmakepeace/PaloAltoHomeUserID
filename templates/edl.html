@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>EDL Lists<br></h1><br>
+</div>      
+     <a class="btn btn-success" href="/addedl">Add EDL List</a>
+ 
+     <hr>
+     
+     <table class="table table-striped">
+         <tr>
+             <th>EDL List Name</th>
+             <th>Description</th>
+             <th></th>
+             <th></th>
+             <th></th>
+         </tr>
+         {% for data in results %}
+          <tr>
+             <th>{{data.EDLName}}</th>
+             <th>{{data.Desc}}</th>
+             <th><a href="edlobjects/{{data.UID}}" class="btn btn-primary">List</a></th>
+             <th><a href="addedlobject/{{data.UID}}" class="btn btn-success">Add object</a></th>
+             <th><a href="deleteedl/{{data.UID}}" class="btn btn-danger">Delete List</a></th>
+          </tr>
+         {% endfor %}
+                  
+     </table>
+     
+
+{% endblock %}
+ 

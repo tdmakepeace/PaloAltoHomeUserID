@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Firewall UserID registered<br></h1><br>
+      <h6>on next update the user ID group list will be as following.</h6>
+      <a href="forcegroup" class="btn btn-primary">Force Update</a>
+</div>      
+     <hr>
+     
+     <table class="table table-striped">
+         <tr>
+             <th>Group</th>
+             <th>Display Name</th>
+         </tr>
+         {% for data in results %}
+          <tr>
+             <th>{{data.group}}</th>
+             <th>{{data.device}}</th>
+          </tr>
+         {% endfor %}
+                  
+     </table>
+     
+{% endblock %}
+ 

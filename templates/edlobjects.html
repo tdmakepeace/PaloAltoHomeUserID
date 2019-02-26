@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class='jumbotron text-center'>
+      <h1>Devices registered in Group<br></h1><br>
+</div>     
+     <a href="/edl" class="btn btn-info">EDL's</a>
+     <hr>
+     
+     <table class="table table-striped">
+         <tr>
+             <th>Object</th>
+             <th></th>
+         </tr>
+         {% for data in results %}
+          <tr>
+             <th>{{data.EDL_Data}}</th>
+             <th><a href="/deleteedlobj/{{data.UID}}" class="btn btn-danger">Delete</a></th>
+          </tr>
+         {% endfor %}
+                  
+     </table>
+     
+{% endblock %}
+ 

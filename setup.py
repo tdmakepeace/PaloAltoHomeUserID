@@ -78,9 +78,9 @@ def createvariables():
         webhost = "webhost = '%s' \n" %(webhost)
     else:
         webhost = "webhost = 'localhost' \n"        
-    webhost = "# the host the webservice is hosted on, FQDN or IP is required.\n#webhost = 'localhost' \n%s \n" %(webhost)
+    webhost = "# the host the webservice is hosted on, FQDN or IP is required.\n#webhost = '192.168.102.6' \n%s \n" %(webhost)
 
-    webport = input("Enter the port you want the web service to run on: Default '5000'")
+    webport = input("Enter the port number you want the web service to run on: Default '5000'")
     if webport:
         webport = "webport = '%s' \n" %(webport)
     else:
@@ -267,36 +267,30 @@ def dbsetup():
 
 ## this table is used to record the state information.
 ## uptime and DB updated from content updated.
-#    state3 = """CREATE TABLE IF NOT EXISTS `FWdata` (
-#  `UID` int(11) NOT NULL AUTO_INCREMENT,
-#  `hostname` varchar(40) NOT NULL,
-#  `uptime` varchar(20) DEFAULT NULL,
-#  `model` varchar(50) DEFAULT NULL,
-#  `serial` varchar(50) DEFAULT NULL,
-#  `swversion` varchar(50) DEFAULT NULL,
-#  `appversion` varchar(50) DEFAULT NULL,
-#  `avversion` varchar(50) DEFAULT NULL,
-#  `threatversion` varchar(50) DEFAULT NULL,
-#  `wildfireversion` varchar(50) DEFAULT NULL,
-#  `appdate` varchar(50) DEFAULT NULL,
-#  `avdate` varchar(50) DEFAULT NULL,
-#  `threatdate` varchar(50) DEFAULT NULL,
-#  `wildfiredate` varchar(50) DEFAULT NULL,
-#  PRIMARY KEY (`UID`)
-# ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;"""
-#    
-#    cur3 = conn.cursor()
-#    cur3.execute(state3)
-#    cur3.close()
+    state3 = """CREATE TABLE `EDL`  (
+  `UID` int(11) NOT NULL AUTO_INCREMENT,
+  `EDLName` varchar(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
+  `Desc` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`UID`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;"""
+
+    
+    cur3 = conn.cursor()
+    cur3.execute(state3)
+    cur3.close()
 #
 ## TODO: need a temp record, as a update is used by the collect process
 ## ideally will look at changing it to something cleaner, as did not want to
 ## add a load of indexes to the table.
-#    state4 = """INSERT IGNORE  INTO `FWdata` (`uid`, `hostname`) VALUES (1, 'temp');"""
-#    
-#    cur4 = conn.cursor()
-#    cur4.execute(state4)
-#    cur4.close()
+    state4 = """CREATE TABLE `EDLData`  (
+  `UID` int(11) NOT NULL AUTO_INCREMENT,
+  `EDL_UID` int(11) NULL DEFAULT NULL,
+  `EDL_Data` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`UID`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = latin1 COLLATE = latin1_swedish_ci ROW_FORMAT = Compact;"""
+    cur4 = conn.cursor()
+    cur4.execute(state4)
+    cur4.close()
     
         
     conn.commit() 
